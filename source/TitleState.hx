@@ -288,23 +288,36 @@ class TitleState extends MusicBeatState
 
 			new FlxTimer().start(2, function(tmr:FlxTimer)
 			{
-				// Check if version is outdated
+				// Get current version of Kade Engine
 
-				var version:String = "v" + Application.current.meta.get('version');
+				var http = new haxe.Http("https://raw.githubusercontent.com/KadeDev/Kade-Engine/master/version.downloadMe");
+				var returnedData:Array<String> = [];
 
-				if (version.trim() != NGio.GAME_VER_NUMS.trim() && !OutdatedSubState.leftState)
+				http.onData = function(data:String)
 				{
-					FlxG.switchState(new OutdatedSubState());
-					trace('OLD VERSION!');
-					trace('old ver');
-					trace(version.trim());
-					trace('cur ver');
-					trace(NGio.GAME_VER_NUMS.trim());
+					returnedData[0] = data.substring(0, data.indexOf(';'));
+					returnedData[1] = data.substring(data.indexOf('-'), data.length);
+					if (!MainMenuState.kadeEngineVer.contains(returnedData[0].trim()) && !OutdatedSubState.leftState)
+					{
+						trace('outdated lmao! ' + returnedData[0]);
+						FlxG.switchState(new OutdatedSubState());
+						clean();
+					}
+					else
+					{
+						FlxG.switchState(new MainMenuState());
+						clean();
+					}
 				}
-				else
+
+				http.onError = function(error)
 				{
-					FlxG.switchState(new MainMenuState());
+					trace('error: $error');
+					FlxG.switchState(new MainMenuState()); // fail but we go anyway
+					clean();
 				}
+
+				http.request();
 			});
 			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
 		}
