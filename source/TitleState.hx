@@ -58,7 +58,7 @@ class TitleState extends MusicBeatState
 
 		super.create();
 
-		NGio.noLogin(APIStuff.API);
+		//NGio.noLogin(APIStuff.API);
 
 		#if ng
 		var ng:NGio = new NGio(APIStuff.API, APIStuff.EncKey);
@@ -244,7 +244,8 @@ class TitleState extends MusicBeatState
 		}
 
 		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER;
-
+            var enterDownload:Bool = FlxG.keys.justPressed.P;
+            
 		#if mobile
 		for (touch in FlxG.touches.list)
 		{
@@ -297,31 +298,24 @@ class TitleState extends MusicBeatState
 				{
 					returnedData[0] = data.substring(0, data.indexOf(';'));
 					returnedData[1] = data.substring(data.indexOf('-'), data.length);
-					if (!MainMenuState.kadeEngineVer.contains(returnedData[0].trim()) && !OutdatedSubState.leftState)
-					{
-						trace('outdated lmao! ' + returnedData[0]);
-						FlxG.switchState(new OutdatedSubState());
-						clean();
-					}
-					else
-					{
-						FlxG.switchState(new MainMenuState());
-						clean();
-					}
+					trace(returnedData);
+                              FlxG.switchState(new MainMenuState());
 				}
 
 				http.onError = function(error)
 				{
 					trace('error: $error');
 					FlxG.switchState(new MainMenuState()); // fail but we go anyway
-					clean();
 				}
 
 				http.request();
 			});
 			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
 		}
-
+            if (enterDownload)
+            {
+                FlxG.switchState(new SongDownloaderState());
+            }
 		if (pressedEnter && !skippedIntro)
 		{
 			skipIntro();
